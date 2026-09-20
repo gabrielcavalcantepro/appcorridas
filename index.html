@@ -100,10 +100,21 @@
 
   label{display:block; font-size:12px; color:var(--text-muted); font-weight:600; margin-bottom:6px;}
   .field{margin-bottom:14px;}
-  input[type="date"], input[type="month"], input[type="text"], select, textarea{
+  input[type="text"], select, textarea{
     width:100%; background:var(--bg-elevated); border:1px solid var(--panel-border); border-radius:var(--radius-sm);
-    padding:10px 12px; font-size:14px; color:var(--text); font-family:var(--font-body);
+    padding:10px 12px; font-size:16px; color:var(--text); font-family:var(--font-body);
   }
+  /* Campos nativos de data/mês: envolvidos por .native-field para o iOS nunca renderizar
+     o valor fora do retângulo (bug conhecido do Mobile Safari com estes inputs). */
+  .native-field{
+    overflow:hidden; border-radius:var(--radius-sm); border:1px solid var(--panel-border); background:var(--bg-elevated);
+  }
+  .native-field input[type="date"], .native-field input[type="month"]{
+    display:block; width:100%; min-width:0; max-width:100%; box-sizing:border-box;
+    border:none; background:transparent; border-radius:0; padding:10px 12px; font-size:16px;
+    color:var(--text); font-family:var(--font-body); -webkit-appearance:none; appearance:none;
+  }
+  .field.has-error .native-field{border-color:var(--danger);}
   .money-field{position:relative;}
   .money-field span{position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-faint); font-size:14px; font-family:var(--font-mono);}
   .money-field input{padding-left:34px; font-family:var(--font-mono); font-weight:600;}
@@ -139,7 +150,7 @@
   .field.has-error .error-text{display:block;}
 
   .date-nav{display:flex; align-items:center; gap:8px;}
-  .date-nav input{flex:1;}
+  .date-nav .native-field{flex:1; min-width:0;}
   .date-nav button{flex:none; width:38px; height:38px; border-radius:var(--radius-sm); border:1px solid var(--panel-border); background:var(--bg-elevated); color:var(--text-muted); cursor:pointer; display:flex; align-items:center; justify-content:center;}
   .date-nav button:hover{color:var(--text);}
 
@@ -169,14 +180,14 @@
   .calc-row-card{background:var(--panel); border:1px solid var(--panel-border); border-radius:var(--radius-sm); padding:12px; margin-bottom:10px;}
   .calc-row-card.is-unsaved{border-color:var(--amber);}
   .calc-row-top{display:flex; gap:8px; margin-bottom:10px;}
-  .calc-row-top input[type="date"]{flex:1; min-width:0;}
+  .calc-row-top .native-field{flex:1; min-width:0;}
   .calc-row-top .icon-btn{flex:none;}
   .calc-field{margin-bottom:10px;}
   .calc-field:last-child{margin-bottom:0;}
   .calc-field label{font-size:10.5px; margin-bottom:4px;}
   .calc-grid-2{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px;}
   .calc-grid-2 .calc-field{margin-bottom:0;}
-  .calc-row-card select, .calc-row-card input{font-size:13px;}
+  .calc-row-card select, .calc-row-card input{font-size:16px;}
   .calc-total{display:flex; justify-content:space-between; align-items:baseline; margin-top:14px; padding-top:14px; border-top:1px dashed var(--panel-border);}
   .calc-total .label{font-weight:700; font-size:13px; color:var(--text-muted);}
   .calc-total .value{font-family:var(--font-mono); font-weight:700; font-size:22px; color:var(--amber-strong);}
@@ -204,8 +215,8 @@
   .place-row .kind-badge{width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex:none; background:var(--teal-soft); color:var(--teal); font-size:14px;}
   .place-row .kind-badge.trabalho{background:var(--amber-soft); color:var(--amber-strong);}
   .place-row .kind-badge.outro{background:var(--panel-border); color:var(--text-faint);}
-  .place-row .name{flex:1; font-weight:700; font-size:13.5px;}
-  .place-row .kind-select{width:auto; font-size:11.5px; padding:6px 8px; flex:none;}
+  .place-row .name{flex:1; min-width:0; font-weight:700; font-size:13.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .place-row .kind-select{width:auto; font-size:16px; padding:6px 8px; flex:none; max-width:110px;}
 
   .toast{
     position:fixed; left:50%; bottom:calc(20px + env(safe-area-inset-bottom,0px)); transform:translate(-50%,12px);
@@ -267,7 +278,7 @@
         <label>Data</label>
         <div class="date-nav">
           <button type="button" id="datePrev" aria-label="Dia anterior">&#8249;</button>
-          <input type="date" id="rideDate">
+          <div class="native-field"><input type="date" id="rideDate"></div>
           <button type="button" id="dateNext" aria-label="Próximo dia">&#8250;</button>
         </div>
       </div>
@@ -333,7 +344,7 @@
       <p class="sub">Lançamentos rápidos para os dias que você não registrou na hora. Cada linha soma direto no total.</p>
       <div class="field">
         <label>Mês</label>
-        <input type="month" id="calcMonth">
+        <div class="native-field"><input type="month" id="calcMonth"></div>
       </div>
       <div id="calcBody" class="calc-cards"></div>
       <button class="btn btn-ghost btn-block add-row-btn" id="addCalcRow" type="button">+ Adicionar corrida</button>
@@ -353,8 +364,8 @@
         <button type="button" data-value="custom">Personalizado</button>
       </div>
       <div class="row-2" id="customRange" style="display:none; margin-bottom:4px;">
-        <div class="field"><label>De</label><input type="date" id="customStart"></div>
-        <div class="field"><label>Até</label><input type="date" id="customEnd"></div>
+        <div class="field"><label>De</label><div class="native-field"><input type="date" id="customStart"></div></div>
+        <div class="field"><label>Até</label><div class="native-field"><input type="date" id="customEnd"></div></div>
       </div>
 
       <div class="kpi-grid">
@@ -787,7 +798,7 @@
         var isDraft = !r.id;
         return '<div class="calc-row-card '+(isDraft?'is-unsaved':'')+'" data-key="'+rowKey+'" data-id="'+(r.id||'')+'">'+
           '<div class="calc-row-top">'+
-            '<input type="date" class="c-date" value="'+(r.date||'')+'">'+
+            '<div class="native-field" style="flex:1; min-width:0;"><input type="date" class="c-date" value="'+(r.date||'')+'"></div>'+
             '<button class="icon-btn del-calc-row" type="button" title="Remover">'+ICONS.trash+'</button>'+
           '</div>'+
           '<div class="calc-field"><label>Local</label><select class="c-place">'+placeOptionsHtml(r.placeId)+'</select></div>'+
