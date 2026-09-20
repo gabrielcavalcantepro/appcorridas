@@ -86,13 +86,13 @@
   .hero-delta .down{color:var(--success);}
   .hero-route{position:absolute; right:18px; bottom:16px; opacity:0.9;}
 
-  .tabs{display:flex; gap:6px; background:var(--panel); border:1px solid var(--panel-border); border-radius:var(--radius-pill); padding:4px; margin-bottom:18px; overflow-x:auto;}
+  .tabs{display:grid; grid-template-columns:1fr 1fr; gap:6px; background:var(--panel); border:1px solid var(--panel-border); border-radius:var(--radius-md); padding:4px; margin-bottom:18px;}
+  @media (min-width:560px){ .tabs{grid-template-columns:repeat(4,1fr);} }
   .tab-btn{
-    flex:1 1 0; white-space:nowrap; border:none; background:none; color:var(--text-muted); font-family:var(--font-body);
-    font-weight:700; font-size:13px; padding:9px 10px; border-radius:var(--radius-pill); cursor:pointer;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; border:none; background:none; color:var(--text-muted); font-family:var(--font-body);
+    font-weight:700; font-size:12.5px; padding:10px 6px; border-radius:var(--radius-pill); cursor:pointer; text-align:center;
   }
   .tab-btn.is-active{background:var(--amber); color:#1B1206;}
-  :root[data-theme="dark"] .tab-btn.is-active, @media (prefers-color-scheme:dark){ .tab-btn.is-active{color:#1B1206;} }
 
   .panel{background:var(--panel-2); border:1px solid var(--panel-border); border-radius:var(--radius-md); padding:18px; margin-bottom:16px;}
   .panel h2{font-size:15px; margin:0 0 4px; font-weight:800;}
@@ -153,7 +153,9 @@
     border:1px solid var(--panel-border); border-radius:var(--radius-sm);
   }
   .ride-row .info{flex:1; min-width:0;}
-  .ride-row .place{font-weight:700; font-size:13.5px; display:flex; align-items:center; gap:6px;}
+  .ride-row .place{font-weight:700; font-size:13.5px; display:flex; align-items:center; gap:6px; min-width:0;}
+  .ride-row .place-text{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;}
+  .ride-row .place .tag{flex:none;}
   .ride-row .meta{font-size:11.5px; color:var(--text-faint); margin-top:2px; display:flex; gap:6px; flex-wrap:wrap;}
   .ride-row .value{font-family:var(--font-mono); font-weight:700; font-size:14.5px; flex:none;}
   .ride-row .actions{display:flex; gap:4px; flex:none;}
@@ -163,18 +165,21 @@
   .tag{font-size:10px; font-weight:700; padding:1px 6px; border-radius:var(--radius-pill); background:var(--amber-soft); color:var(--amber-strong);}
   .empty-state{padding:28px 12px; text-align:center; color:var(--text-faint); font-size:13px;}
 
-  /* calculo tab table */
-  .calc-table{width:100%; border-collapse:collapse;}
-  .calc-table th{font-size:10.5px; text-transform:none; color:var(--text-faint); text-align:left; font-weight:700; padding:0 6px 8px;}
-  .calc-table td{padding:5px 4px;}
-  .calc-table tr.is-unsaved td{background:var(--amber-soft);}
-  .calc-table input, .calc-table select{padding:7px 8px; font-size:12.5px;}
-  .calc-table .col-del{width:32px;}
-  .calc-table .col-value{width:110px;}
+  /* calculo tab: cards empilháveis (mobile-first, sem tabela) */
+  .calc-row-card{background:var(--panel); border:1px solid var(--panel-border); border-radius:var(--radius-sm); padding:12px; margin-bottom:10px;}
+  .calc-row-card.is-unsaved{border-color:var(--amber);}
+  .calc-row-top{display:flex; gap:8px; margin-bottom:10px;}
+  .calc-row-top input[type="date"]{flex:1; min-width:0;}
+  .calc-row-top .icon-btn{flex:none;}
+  .calc-field{margin-bottom:10px;}
+  .calc-field:last-child{margin-bottom:0;}
+  .calc-field label{font-size:10.5px; margin-bottom:4px;}
+  .calc-grid-2{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px;}
+  .calc-grid-2 .calc-field{margin-bottom:0;}
+  .calc-row-card select, .calc-row-card input{font-size:13px;}
   .calc-total{display:flex; justify-content:space-between; align-items:baseline; margin-top:14px; padding-top:14px; border-top:1px dashed var(--panel-border);}
   .calc-total .label{font-weight:700; font-size:13px; color:var(--text-muted);}
   .calc-total .value{font-family:var(--font-mono); font-weight:700; font-size:22px; color:var(--amber-strong);}
-  .table-scroll{overflow-x:auto; margin:0 -18px; padding:0 18px;}
 
   /* dashboard */
   .kpi-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(135px,1fr)); gap:10px; margin-bottom:18px;}
@@ -187,12 +192,12 @@
   .bar-chart{width:100%; height:150px; display:block; overflow:visible;}
   .bar-chart rect.bar{fill:var(--teal);}
   .bar-chart text.bar-label{fill:var(--text-faint); font-family:var(--font-body); font-size:8px;}
-  .hbar-row{display:flex; align-items:center; gap:10px; margin-bottom:9px;}
-  .hbar-row .hb-label{width:78px; flex:none; font-size:12px; color:var(--text-muted); font-weight:600; display:flex; align-items:center; gap:6px;}
+  .hbar-row{display:flex; align-items:center; gap:8px; margin-bottom:9px;}
+  .hbar-row .hb-label{width:64px; flex:none; font-size:11px; color:var(--text-muted); font-weight:600; line-height:1.2; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;}
   .hbar-track{flex:1; height:9px; background:var(--panel); border-radius:var(--radius-pill); overflow:hidden;}
   .hbar-fill{height:100%; border-radius:var(--radius-pill); background:var(--teal);}
   .hbar-fill.amber{background:var(--amber);}
-  .hbar-value{width:64px; flex:none; text-align:right; font-family:var(--font-mono); font-size:12px; font-weight:600;}
+  .hbar-value{width:58px; flex:none; text-align:right; font-family:var(--font-mono); font-size:11.5px; font-weight:600;}
 
   /* locais */
   .place-row{display:flex; align-items:center; gap:10px; padding:10px 12px; background:var(--panel); border:1px solid var(--panel-border); border-radius:var(--radius-sm); margin-bottom:8px;}
@@ -330,16 +335,7 @@
         <label>Mês</label>
         <input type="month" id="calcMonth">
       </div>
-      <div class="table-scroll">
-        <table class="calc-table">
-          <thead>
-            <tr>
-              <th>Data</th><th>Sentido</th><th>Local</th><th>App</th><th>Valor</th><th class="col-del"></th>
-            </tr>
-          </thead>
-          <tbody id="calcBody"></tbody>
-        </table>
-      </div>
+      <div id="calcBody" class="calc-cards"></div>
       <button class="btn btn-ghost btn-block add-row-btn" id="addCalcRow" type="button">+ Adicionar corrida</button>
       <div class="calc-total">
         <span class="label">Total do mês</span>
@@ -683,7 +679,7 @@
         var placeName = r.placeName || (place ? place.name : 'Sem local');
         return '<div class="ride-row" data-id="'+r.id+'">'+
           '<div class="info">'+
-            '<div class="place">'+appDotHtml(r.app)+escapeHtml(placeName)+' <span class="tag">'+directionLabel(r.direction)+'</span></div>'+
+            '<div class="place">'+appDotHtml(r.app)+'<span class="place-text">'+escapeHtml(placeName)+'</span><span class="tag">'+directionLabel(r.direction)+'</span></div>'+
             '<div class="meta">'+appLabel(r.app)+(r.note?' · '+escapeHtml(r.note):'')+'</div>'+
           '</div>'+
           '<div class="value">'+brl(r.value)+'</div>'+
@@ -784,27 +780,31 @@
     var rows = calcRowsForMonth().sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); });
     var body = document.getElementById('calcBody');
     if(rows.length===0){
-      body.innerHTML = '<tr><td colspan="6" style="padding:16px 4px;color:var(--text-faint);font-size:12.5px;">Nenhum lançamento em '+monthLabel(calcMonth)+'. Adicione uma corrida abaixo.</td></tr>';
+      body.innerHTML = '<div class="empty-state">Nenhum lançamento em '+monthLabel(calcMonth)+'. Adicione uma corrida abaixo.</div>';
     } else {
       body.innerHTML = rows.map(function(r){
         var rowKey = r.id || r._draftId;
         var isDraft = !r.id;
-        return '<tr class="'+(isDraft?'is-unsaved':'')+'" data-key="'+rowKey+'" data-id="'+(r.id||'')+'">'+
-          '<td><input type="date" class="c-date" value="'+(r.date||'')+'"></td>'+
-          '<td><select class="c-dir">'+
-            '<option value="ida"'+(r.direction==='ida'?' selected':'')+'>Ida</option>'+
-            '<option value="volta"'+(r.direction==='volta'?' selected':'')+'>Volta</option>'+
-            '<option value="outra"'+(r.direction==='outra'?' selected':'')+'>Outra</option>'+
-          '</select></td>'+
-          '<td><select class="c-place">'+placeOptionsHtml(r.placeId)+'</select></td>'+
-          '<td><select class="c-app">'+
-            '<option value="uber"'+(r.app==='uber'?' selected':'')+'>Uber</option>'+
-            '<option value="99"'+(r.app==='99'?' selected':'')+'>99</option>'+
-            '<option value="outro"'+(r.app==='outro'?' selected':'')+'>Outro</option>'+
-          '</select></td>'+
-          '<td class="col-value"><div class="money-field"><span>R$</span><input type="text" inputmode="decimal" class="c-value" value="'+(r.value!==undefined?String(r.value).replace('.',','):'')+'"></div></td>'+
-          '<td class="col-del"><button class="icon-btn del-calc-row" type="button" title="Remover">'+ICONS.trash+'</button></td>'+
-        '</tr>';
+        return '<div class="calc-row-card '+(isDraft?'is-unsaved':'')+'" data-key="'+rowKey+'" data-id="'+(r.id||'')+'">'+
+          '<div class="calc-row-top">'+
+            '<input type="date" class="c-date" value="'+(r.date||'')+'">'+
+            '<button class="icon-btn del-calc-row" type="button" title="Remover">'+ICONS.trash+'</button>'+
+          '</div>'+
+          '<div class="calc-field"><label>Local</label><select class="c-place">'+placeOptionsHtml(r.placeId)+'</select></div>'+
+          '<div class="calc-grid-2">'+
+            '<div class="calc-field"><label>Sentido</label><select class="c-dir">'+
+              '<option value="ida"'+(r.direction==='ida'?' selected':'')+'>Ida</option>'+
+              '<option value="volta"'+(r.direction==='volta'?' selected':'')+'>Volta</option>'+
+              '<option value="outra"'+(r.direction==='outra'?' selected':'')+'>Outra</option>'+
+            '</select></div>'+
+            '<div class="calc-field"><label>App</label><select class="c-app">'+
+              '<option value="uber"'+(r.app==='uber'?' selected':'')+'>Uber</option>'+
+              '<option value="99"'+(r.app==='99'?' selected':'')+'>99</option>'+
+              '<option value="outro"'+(r.app==='outro'?' selected':'')+'>Outro</option>'+
+            '</select></div>'+
+          '</div>'+
+          '<div class="calc-field"><label>Valor</label><div class="money-field"><span>R$</span><input type="text" inputmode="decimal" class="c-value" value="'+(r.value!==undefined?String(r.value).replace('.',','):'')+'"></div></div>'+
+        '</div>';
       }).join('');
     }
     var total = rows.reduce(function(s,r){ return s + (Number(r.value)||0); }, 0);
@@ -812,32 +812,32 @@
     wireCalcRowEvents();
   }
 
-  function commitCalcRow(tr){
-    var id = tr.getAttribute('data-id');
-    var key = tr.getAttribute('data-key');
-    var dateVal = tr.querySelector('.c-date').value;
-    var valueVal = parseBRL(tr.querySelector('.c-value').value);
+  function commitCalcRow(card){
+    var id = card.getAttribute('data-id');
+    var key = card.getAttribute('data-key');
+    var dateVal = card.querySelector('.c-date').value;
+    var valueVal = parseBRL(card.querySelector('.c-value').value);
     if(!dateVal || !(valueVal>0)){
       // keep as draft until both fields are valid
       var draft = calcDraftRows.find(function(d){ return d._draftId===key; });
       if(draft){
         draft.date = dateVal;
-        draft.direction = tr.querySelector('.c-dir').value;
-        draft.placeId = tr.querySelector('.c-place').value;
-        draft.app = tr.querySelector('.c-app').value;
+        draft.direction = card.querySelector('.c-dir').value;
+        draft.placeId = card.querySelector('.c-place').value;
+        draft.app = card.querySelector('.c-app').value;
       }
       renderCalculo();
       return;
     }
-    var placeId = tr.querySelector('.c-place').value;
+    var placeId = card.querySelector('.c-place').value;
     var place = state.places.find(function(p){ return p.id===placeId; });
     var data = {
       date: dateVal,
-      direction: tr.querySelector('.c-dir').value,
+      direction: card.querySelector('.c-dir').value,
       placeId: placeId || null,
       placeName: place ? place.name : 'Sem local',
       placeKind: place ? place.kind : 'outro',
-      app: tr.querySelector('.c-app').value,
+      app: card.querySelector('.c-app').value,
       value: Math.round(valueVal*100)/100,
       note: '',
       source: 'calculo',
@@ -857,16 +857,16 @@
 
   function wireCalcRowEvents(){
     var body = document.getElementById('calcBody');
-    body.querySelectorAll('tr[data-key]').forEach(function(tr){
-      tr.querySelectorAll('input, select').forEach(function(el){
-        el.addEventListener('change', function(){ commitCalcRow(tr); });
+    body.querySelectorAll('.calc-row-card[data-key]').forEach(function(card){
+      card.querySelectorAll('input, select').forEach(function(el){
+        el.addEventListener('change', function(){ commitCalcRow(card); });
       });
     });
     body.querySelectorAll('.del-calc-row').forEach(function(btn){
       btn.addEventListener('click', function(){
-        var tr = btn.closest('tr');
-        var id = tr.getAttribute('data-id');
-        var key = tr.getAttribute('data-key');
+        var card = btn.closest('.calc-row-card');
+        var id = card.getAttribute('data-id');
+        var key = card.getAttribute('data-key');
         if(id){
           deleteRide(id).then(function(){
             state.rides = state.rides.filter(function(r){ return r.id!==id; });
