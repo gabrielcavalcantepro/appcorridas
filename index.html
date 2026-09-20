@@ -346,8 +346,8 @@
         <label>Mês</label>
         <div class="native-field"><input type="month" id="calcMonth"></div>
       </div>
-      <div id="calcBody" class="calc-cards"></div>
       <button class="btn btn-ghost btn-block add-row-btn" id="addCalcRow" type="button">+ Adicionar corrida</button>
+      <div id="calcBody" class="calc-cards" style="margin-top:14px;"></div>
       <div class="calc-total">
         <span class="label">Total do mês</span>
         <span class="value" id="calcTotal">R$ 0,00</span>
@@ -726,7 +726,6 @@
         if(btn.classList.contains('confirm-del')){
           var id = btn.closest('.ride-row').getAttribute('data-id');
           deleteRide(id).then(function(){
-            state.rides = state.rides.filter(function(r){ return r.id!==id; });
             renderAll();
             showToast('Corrida excluída');
           });
@@ -750,6 +749,8 @@
     valueField.classList.remove('has-error');
     var placeId = document.getElementById('rideePlace').value;
     var place = state.places.find(function(p){ return p.id===placeId; });
+    var id = state.editingId;
+    var existing = id ? state.rides.find(function(r){ return r.id===id; }) : null;
     var data = {
       date: document.getElementById('rideDate').value || currentDate,
       direction: state.direction,
@@ -760,16 +761,11 @@
       value: Math.round(value*100)/100,
       note: document.getElementById('rideNote').value.trim(),
       source: 'diario',
-      createdAt: new Date().toISOString()
+      createdAt: (existing && existing.createdAt) || new Date().toISOString()
     };
-    var id = state.editingId;
-    saveRide(data, id).then(function(saved){
-      if(id){
-        var idx = state.rides.findIndex(function(r){ return r.id===id; });
-        if(idx>-1) state.rides[idx]=saved;
-      } else {
-        state.rides.push(saved);
-      }
+    // saveRide já insere/atualiza state.rides internamente — não repetir aqui,
+    // ou a corrida aparece duplicada na lista.
+    saveRide(data, id).then(function(){
       resetRideForm();
       renderAll();
       showToast(id ? 'Corrida atualizada' : 'Corrida salva');
@@ -788,7 +784,9 @@
 
   function renderCalculo(){
     document.getElementById('calcMonth').value = calcMonth;
-    var rows = calcRowsForMonth().sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); });
+    // Mais recém-adicionado primeiro: ordena por createdAt decrescente, não pela data da corrida —
+    // assim o item que você acabou de criar sempre aparece no topo, perto do botão.
+    var rows = calcRowsForMonth().sort(function(a,b){ return (b.createdAt||'').localeCompare(a.createdAt||''); });
     var body = document.getElementById('calcBody');
     if(rows.length===0){
       body.innerHTML = '<div class="empty-state">Nenhum lançamento em '+monthLabel(calcMonth)+'. Adicione uma corrida abaixo.</div>';
@@ -842,6 +840,17 @@
     }
     var placeId = card.querySelector('.c-place').value;
     var place = state.places.find(function(p){ return p.id===placeId; });
+    // Preserva o createdAt original (da corrida já salva, ou do rascunho recém-criado) —
+    // se gerasse um novo a cada edição, a linha pularia de posição toda vez que você
+    // mudasse um campo, que era exatamente o bug que você viu.
+    var existingCreatedAt = null;
+    if(id){
+      var existingRide = state.rides.find(function(r){ return r.id===id; });
+      existingCreatedAt = existingRide && existingRide.createdAt;
+    } else {
+      var draftRef = calcDraftRows.find(function(d){ return d._draftId===key; });
+      existingCreatedAt = draftRef && draftRef.createdAt;
+    }
     var data = {
       date: dateVal,
       direction: card.querySelector('.c-dir').value,
@@ -852,14 +861,12 @@
       value: Math.round(valueVal*100)/100,
       note: '',
       source: 'calculo',
-      createdAt: new Date().toISOString()
+      createdAt: existingCreatedAt || new Date().toISOString()
     };
-    saveRide(data, id || null).then(function(saved){
-      if(id){
-        var idx = state.rides.findIndex(function(r){ return r.id===id; });
-        if(idx>-1) state.rides[idx]=saved;
-      } else {
-        state.rides.push(saved);
+    // saveRide já insere/atualiza state.rides internamente — não repetir aqui,
+    // ou a linha aparece duplicada (era exatamente esse o bug da "cópia").
+    saveRide(data, id || null).then(function(){
+      if(!id){
         calcDraftRows = calcDraftRows.filter(function(d){ return d._draftId!==key; });
       }
       renderAll();
@@ -880,7 +887,6 @@
         var key = card.getAttribute('data-key');
         if(id){
           deleteRide(id).then(function(){
-            state.rides = state.rides.filter(function(r){ return r.id!==id; });
             renderAll();
             showToast('Lançamento removido');
           });
@@ -1021,7 +1027,6 @@
         if(btn.classList.contains('confirm-del')){
           var id = btn.closest('.place-row').getAttribute('data-id');
           deletePlace(id).then(function(){
-            state.places = state.places.filter(function(p){ return p.id!==id; });
             renderAll();
             showToast('Local excluído');
           });
@@ -1086,8 +1091,10 @@
 
     document.getElementById('calcMonth').addEventListener('change', function(e){ calcMonth = e.target.value; calcDraftRows=[]; renderCalculo(); });
     document.getElementById('addCalcRow').addEventListener('click', function(){
-      calcDraftRows.push({_draftId: uid(), date: calcMonth+'-01', direction:'ida', placeId: state.places[0]?state.places[0].id:'', app:'uber', value:''});
+      calcDraftRows.push({_draftId: uid(), date: calcMonth+'-01', direction:'ida', placeId: state.places[0]?state.places[0].id:'', app:'uber', value:'', createdAt: new Date().toISOString()});
       renderCalculo();
+      var body = document.getElementById('calcBody');
+      if(body.firstElementChild){ body.firstElementChild.scrollIntoView({behavior:'smooth', block:'nearest'}); }
     });
 
     document.querySelectorAll('#periodSeg button').forEach(function(b){
@@ -1116,8 +1123,8 @@
       var name = document.getElementById('placeName').value.trim();
       if(!name){ showToast('Digite um nome para o local'); return; }
       var kind = document.getElementById('placeKind').value;
-      savePlace({name:name, kind:kind, createdAt:new Date().toISOString()}).then(function(saved){
-        state.places.push(saved);
+      // savePlace já insere em state.places internamente — não repetir aqui.
+      savePlace({name:name, kind:kind, createdAt:new Date().toISOString()}).then(function(){
         document.getElementById('placeName').value = '';
         renderAll();
         showToast('Local adicionado');
